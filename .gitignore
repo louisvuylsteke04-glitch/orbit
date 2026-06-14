@@ -1,0 +1,14 @@
+# Local config & secrets — never commit
+config.js
+.env
+.env.*
+
+# Vercel
+.vercel
+
+# Dependencies
+node_modules/
+
+# OS / editor cruft
+.DS_Store
+*.log

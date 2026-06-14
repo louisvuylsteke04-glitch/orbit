@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+<meta name="theme-color" content="#f3f1ec" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Orbit" />
+<title>Orbit</title>
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="apple-touch-icon" href="icons/icon-180.png" />
+<link rel="icon" href="icons/icon-32.png" sizes="32x32" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- UNLOCK -->
+<section id="unlock" class="screen unlock-screen">
+  <div class="unlock-card">
+    <h1>Orbit</h1>
+    <p class="tagline">A ledger for the disciplines you practise — focus, reading, breath, caffeine, projects. Measured daily.</p>
+    <form id="unlockForm" autocomplete="off">
+      <label for="passphrase">Sync phrase</label>
+      <input id="passphrase" type="password" placeholder="same phrase as before" autocapitalize="off" autocorrect="off" spellcheck="false" />
+      <button type="submit" class="btn btn-primary block">Enter</button>
+    </form>
+    <p class="hint">Use the <strong>same private phrase</strong> as your other apps; everything you have logged appears here, synced across devices. Only a one-way fingerprint of it is stored.</p>
+  </div>
+</section>
+
+<!-- APP -->
+<main id="app" class="screen app-screen" hidden>
+  <header class="topbar">
+    <div class="brand"><span class="brand-name">Orbit</span></div>
+    <div class="topbar-actions">
+      <span id="mastDate" class="masthead-meta"></span>
+      <span id="syncBadge" class="sync-badge"></span>
+      <button id="openSettings" class="icon-btn" aria-label="Settings"></button>
+    </div>
+  </header>
+
+  <!-- ============ INDEX ============ -->
+  <section id="view-index" class="view">
+    <p class="greeting" id="greeting">Today</p>
+    <div class="ledger" id="idxLedger"></div>
+    <div class="app-footer"><span id="footNote">Saved to Supabase</span> &middot; <button id="exportBtn" class="link-btn">Export all</button></div>
+  </section>
+
+  <!-- ============ FOCUS ============ -->
+  <section id="view-focus" class="view" hidden>
+    <div class="subnav-wrap"><div class="subnav"><button class="subtab active" data-app="focus" data-sub="log">Log</button><button class="subtab" data-app="focus" data-sub="insights">Insights</button></div></div>
+    <div id="focus-log">
+      <div class="timer-card">
+        <div class="mode-pills"><button id="pillFocus" class="pill active">Focus</button><button id="pillBreak" class="pill">Break</button></div>
+        <div class="time" id="fTime">50:00</div>
+        <div class="mode-sub" id="fModeSub">focus block</div>
+        <div class="gauge"><i id="fGauge"></i></div>
+        <input id="fLabel" class="label-input" type="text" maxlength="60" placeholder="Subject (optional)" />
+        <div class="controls"><button class="btn btn-primary" id="fStart">Start</button><button class="btn btn-soft" id="fReset">Reset</button></div>
+        <p class="session-hint" id="fHint"></p>
+      </div>
+      <div class="logmore"><button id="bfFocus" class="link-btn">+ Add a past block</button></div>
+    </div>
+    <div id="focus-insights" hidden>
+      <div class="winsel-wrap"><div class="winsel"><button class="winbtn" data-win="1w">1W</button><button class="winbtn active" data-win="4w">4W</button><button class="winbtn" data-win="3m">3M</button><button class="winbtn" data-win="1y">1Y</button></div></div>
+      <div class="fig-row" id="fFigures"></div>
+      <div class="panel"><div class="panel-head"><h2>Blocks</h2><span class="panel-meta win-meta"></span></div><div class="chart bars" id="fPlate"></div></div>
+      <div class="panel"><div class="panel-head"><h2>When you focus</h2><span class="panel-meta" id="fHoursMeta"></span></div><div class="chart hours" id="fHours"></div><div class="hour-axis"><span>12a</span><span>6a</span><span>12p</span><span>6p</span><span>11p</span></div></div>
+      <div class="panel"><div class="panel-head"><h2>Recent blocks</h2><span class="panel-meta">tap to delete</span></div><ul class="recent-list" id="fRecent"></ul></div>
+    </div>
+  </section>
+
+  <!-- ============ READING ============ -->
+  <section id="view-read" class="view" hidden>
+    <div class="subnav-wrap"><div class="subnav"><button class="subtab active" data-app="read" data-sub="log">Log</button><button class="subtab" data-app="read" data-sub="insights">Insights</button></div></div>
+    <div id="read-log">
+      <div class="timer-card">
+        <div class="now-reading"><span class="nr-label">Now reading</span><select id="currentBook" class="mini-select"><option value="">— pick or add —</option></select></div>
+        <div class="stopwatch" id="rSW">00:00</div><div class="sw-sub">reading stopwatch</div>
+        <div class="controls"><button class="btn btn-primary" id="rStart">Start</button><button class="btn btn-soft" id="rStop" hidden>Finish &amp; log</button></div>
+        <p class="session-hint" id="rHint">Pick a book and start when you sit down.</p>
+      </div>
+      <div class="panel"><div class="panel-head"><h2>Books</h2><span class="head-links"><button id="bfRead" class="link-btn">+ Add past</button><button id="addBookBtn" class="link-btn">+ Add book</button></span></div><ul class="mini-list" id="bookList"></ul></div>
+    </div>
+    <div id="read-insights" hidden>
+      <div class="winsel-wrap"><div class="winsel"><button class="winbtn" data-win="1w">1W</button><button class="winbtn active" data-win="4w">4W</button><button class="winbtn" data-win="3m">3M</button><button class="winbtn" data-win="1y">1Y</button></div></div>
+      <div class="fig-row" id="rFigures"></div>
+      <div class="panel"><div class="panel-head"><h2>Minutes</h2><span class="panel-meta win-meta"></span></div><div class="chart bars" id="rPlate"></div></div>
+      <div class="panel"><div class="panel-head"><h2>When you read</h2><span class="panel-meta" id="rHoursMeta"></span></div><div class="chart hours" id="rHours"></div><div class="hour-axis"><span>12a</span><span>6a</span><span>12p</span><span>6p</span><span>11p</span></div></div>
+      <div class="panel"><div class="panel-head"><h2>Recent sessions</h2><span class="panel-meta">tap to delete</span></div><ul class="recent-list" id="rRecent"></ul></div>
+    </div>
+  </section>
+
+  <!-- ============ BREATH ============ -->
+  <section id="view-breathe" class="view" hidden>
+    <div class="subnav-wrap"><div class="subnav"><button class="subtab active" data-app="breathe" data-sub="log">Log</button><button class="subtab" data-app="breathe" data-sub="insights">Insights</button></div></div>
+    <div id="breathe-log">
+      <div class="timer-card">
+        <div class="chip-row" id="patternRow"></div>
+        <div class="orb-wrap"><div class="orb" id="orb"><div class="orb-inner"><div class="orb-label" id="orbLabel">Ready</div><div class="orb-sub" id="orbSub"></div></div></div></div>
+        <div class="chip-row dur-row" id="durRow"></div>
+        <div class="controls"><button class="btn btn-primary" id="bStart">Start</button></div>
+        <p class="session-hint" id="bHint">Pick a pattern and a length.</p>
+      </div>
+      <div class="logmore"><button id="bfBreathe" class="link-btn">+ Add a past session</button></div>
+    </div>
+    <div id="breathe-insights" hidden>
+      <div class="winsel-wrap"><div class="winsel"><button class="winbtn" data-win="1w">1W</button><button class="winbtn active" data-win="4w">4W</button><button class="winbtn" data-win="3m">3M</button><button class="winbtn" data-win="1y">1Y</button></div></div>
+      <div class="fig-row" id="bFigures"></div>
+      <div class="panel"><div class="panel-head"><h2>Minutes</h2><span class="panel-meta win-meta"></span></div><div class="chart bars" id="bPlate"></div></div>
+      <div class="panel"><div class="panel-head"><h2>Recent sessions</h2><span class="panel-meta">tap to delete</span></div><ul class="recent-list" id="bRecent"></ul></div>
+    </div>
+  </section>
+
+  <!-- ============ CAFFEINE ============ -->
+  <section id="view-caffeine" class="view" hidden>
+    <div class="subnav-wrap"><div class="subnav"><button class="subtab active" data-app="caffeine" data-sub="log">Log</button><button class="subtab" data-app="caffeine" data-sub="insights">Insights</button></div></div>
+    <div id="caffeine-log">
+      <div class="timer-card center-panel">
+        <div class="big-num" id="cafBig">0</div>
+        <div class="big-sub">cups today &middot; <span id="cafMg">0</span> mg</div>
+        <div class="controls"><button class="btn btn-primary" id="logCoffee">Log a coffee</button></div>
+        <p class="caf-note" id="cafNote"></p>
+      </div>
+      <div class="panel"><div class="panel-head"><h2>Today</h2><button id="bfCaf" class="link-btn">+ Add past</button></div><ul class="mini-list" id="cafList"></ul></div>
+    </div>
+    <div id="caffeine-insights" hidden>
+      <div class="winsel-wrap"><div class="winsel"><button class="winbtn" data-win="1w">1W</button><button class="winbtn active" data-win="4w">4W</button><button class="winbtn" data-win="3m">3M</button><button class="winbtn" data-win="1y">1Y</button></div></div>
+      <div class="fig-row" id="cFigures"></div>
+      <div class="panel"><div class="panel-head"><h2>Cups</h2><span class="panel-meta win-meta"></span></div><div class="chart bars" id="cafPlate"></div></div>
+      <div class="panel"><div class="panel-head"><h2>When you drink</h2><span class="panel-meta" id="cafHoursMeta"></span></div><div class="chart hours" id="cafHours"></div><div class="hour-axis"><span>12a</span><span>6a</span><span>12p</span><span>6p</span><span>11p</span></div></div>
+    </div>
+  </section>
+
+  <!-- ============ PROJECTS ============ -->
+  <section id="view-project" class="view" hidden>
+    <div class="subnav-wrap"><div class="subnav"><button class="subtab active" data-app="project" data-sub="log">Log</button><button class="subtab" data-app="project" data-sub="insights">Insights</button></div></div>
+    <div id="project-log">
+      <div class="timer-card">
+        <div class="now-reading"><span class="nr-label">Working on</span><select id="currentProject" class="mini-select"><option value="">— pick or add —</option></select></div>
+        <div class="stopwatch" id="pSW">00:00</div><div class="sw-sub">project stopwatch</div>
+        <div class="controls"><button class="btn btn-primary" id="pStart">Start</button><button class="btn btn-soft" id="pStop" hidden>Finish &amp; log</button></div>
+        <p class="session-hint" id="pHint">Pick a project and start the clock.</p>
+      </div>
+      <div class="panel"><div class="panel-head"><h2>Projects</h2><span class="head-links"><button id="bfProj" class="link-btn">+ Add past</button><button id="addProjBtn" class="link-btn">+ Add project</button></span></div><ul class="mini-list" id="projList"></ul></div>
+    </div>
+    <div id="project-insights" hidden>
+      <div class="winsel-wrap"><div class="winsel"><button class="winbtn" data-win="1w">1W</button><button class="winbtn active" data-win="4w">4W</button><button class="winbtn" data-win="3m">3M</button><button class="winbtn" data-win="1y">1Y</button></div></div>
+      <div class="fig-row" id="pFigures"></div>
+      <div class="panel"><div class="panel-head"><h2>By project</h2><span class="panel-meta win-meta"></span></div><div class="breakdown" id="projBreak"></div></div>
+      <div class="panel"><div class="panel-head"><h2>Minutes</h2><span class="panel-meta win-meta"></span></div><div class="chart bars" id="pPlate"></div></div>
+      <div class="panel"><div class="panel-head"><h2>Recent sessions</h2><span class="panel-meta">tap to delete</span></div><ul class="recent-list" id="pRecent"></ul></div>
+    </div>
+  </section>
+
+  <nav class="tabbar" id="tabbar">
+    <button class="navbtn active" data-tab="index">Index</button>
+    <button class="navbtn" data-tab="focus">Focus</button>
+    <button class="navbtn" data-tab="read">Read</button>
+    <button class="navbtn" data-tab="breathe">Breath</button>
+    <button class="navbtn" data-tab="caffeine">Coffee</button>
+    <button class="navbtn" data-tab="project">Work</button>
+  </nav>
+</main>
+
+<!-- ===== Sheets ===== -->
+<div id="bookBackdrop" class="sheet-backdrop" hidden><div class="sheet">
+  <h3 id="bookSheetTitle">Add a book</h3>
+  <div class="field"><label for="bTitle">Title</label><input id="bTitle" type="text" maxlength="120" /></div>
+  <div class="field two"><div><label for="bAuthor">Author</label><input id="bAuthor" type="text" /></div><div><label for="bPages">Total pages</label><input id="bPages" type="number" inputmode="numeric" /></div></div>
+  <div class="field two"><div><label for="bCurrent">Current page</label><input id="bCurrent" type="number" inputmode="numeric" /></div><div><label for="bStatus">Status</label><select id="bStatus"><option value="reading">Reading</option><option value="want">Want to read</option><option value="finished">Finished</option></select></div></div>
+  <div class="field" id="ratingField" hidden><label>Rating</label><div class="stars" id="starRow"><span data-v="1">&#9733;</span><span data-v="2">&#9733;</span><span data-v="3">&#9733;</span><span data-v="4">&#9733;</span><span data-v="5">&#9733;</span></div></div>
+  <div class="sheet-actions add-actions"><button id="bookDelete" class="btn btn-danger block" hidden>Delete</button><button id="bookCancel" class="btn btn-soft block">Cancel</button><button id="bookSave" class="btn btn-primary block">Save</button></div>
+</div></div>
+
+<div id="logBackdrop" class="sheet-backdrop" hidden><div class="sheet">
+  <h3>Log reading session</h3><p class="group-desc" id="logSummary"></p>
+  <div class="field"><label for="logPages">Pages read (optional)</label><input id="logPages" type="number" inputmode="numeric" /></div>
+  <div class="sheet-actions add-actions"><button id="logDiscard" class="btn btn-soft block">Discard</button><button id="logSave" class="btn btn-primary block">Save</button></div>
+</div></div>
+
+<div id="projBackdrop" class="sheet-backdrop" hidden><div class="sheet">
+  <h3 id="projSheetTitle">Add a project</h3>
+  <div class="field"><label for="pName">Name</label><input id="pName" type="text" maxlength="40" placeholder="Guitar, Velox, Python" /></div>
+  <div class="sheet-actions add-actions"><button id="projDelete" class="btn btn-danger block" hidden>Delete</button><button id="projCancel" class="btn btn-soft block">Cancel</button><button id="projSave" class="btn btn-primary block">Save</button></div>
+</div></div>
+
+<div id="plogBackdrop" class="sheet-backdrop" hidden><div class="sheet">
+  <h3>Log work session</h3><p class="group-desc" id="plogSummary"></p>
+  <div class="field"><label for="plogNote">Note (optional)</label><input id="plogNote" type="text" maxlength="80" /></div>
+  <div class="sheet-actions add-actions"><button id="plogDiscard" class="btn btn-soft block">Discard</button><button id="plogSave" class="btn btn-primary block">Save</button></div>
+</div></div>
+
+
+<div id="patBackdrop" class="sheet-backdrop" hidden><div class="sheet">
+  <h3>Add a breathing pattern</h3><p class="group-desc">Seconds per phase. 0 to skip a phase.</p>
+  <div class="field"><label for="patName">Name</label><input id="patName" type="text" maxlength="24" placeholder="My calm" /></div>
+  <div class="field four"><div><label for="pIn">In</label><input id="pIn" type="number" value="4" inputmode="numeric" /></div><div><label for="pH1">Hold</label><input id="pH1" type="number" value="2" inputmode="numeric" /></div><div><label for="pOut">Out</label><input id="pOut" type="number" value="6" inputmode="numeric" /></div><div><label for="pH2">Hold</label><input id="pH2" type="number" value="0" inputmode="numeric" /></div></div>
+  <div class="sheet-actions add-actions"><button id="patCancel" class="btn btn-soft block">Cancel</button><button id="patSave" class="btn btn-primary block">Add</button></div>
+</div></div>
+
+<div id="settingsBackdrop" class="sheet-backdrop" hidden><div class="sheet">
+  <h3>Settings</h3>
+  <div class="settings-group"><div class="field two"><div><label for="setFocus">Focus min</label><input id="setFocus" type="number" inputmode="numeric" /></div><div><label for="setBreak">Break min</label><input id="setBreak" type="number" inputmode="numeric" /></div></div><div class="field"><label for="setCoffeeMg">Coffee caffeine (mg)</label><input id="setCoffeeMg" type="number" inputmode="numeric" /></div></div>
+  <div class="settings-group"><label class="switch-row"><span>Chime when a timer ends</span><input id="soundOn" type="checkbox" class="switch" checked /></label></div>
+  <div class="settings-group"><button id="forgetBtn" class="btn btn-soft block">Sign out (forget phrase here)</button><button id="eraseBtn" class="btn btn-danger block">Erase all my data</button></div>
+  <div class="sheet-actions"><button id="closeSettings" class="btn btn-primary block">Done</button></div>
+</div></div>
+
+<!-- ===== Backfill sheet ===== -->
+<div id="bfBackdrop" class="sheet-backdrop" hidden><div class="sheet">
+  <h3 id="bfTitle">Add past entry</h3>
+  <p class="group-desc">Log something you did earlier. It saves to your synced history.</p>
+  <div class="field two"><div><label for="bfDate">Date</label><input id="bfDate" type="date" /></div><div><label for="bfTime">Time</label><input id="bfTime" type="time" /></div></div>
+  <div class="field" id="bfDurWrap"><label for="bfDur">Duration (min)</label><input id="bfDur" type="number" inputmode="numeric" /></div>
+  <div class="field" id="bfSelWrap"><label id="bfSelLabel" for="bfSel">Book</label><select id="bfSel"></select></div>
+  <div class="field" id="bfNumWrap"><label id="bfNumLabel" for="bfNum">Pages</label><input id="bfNum" type="number" inputmode="numeric" /></div>
+  <div class="field" id="bfTextWrap"><label id="bfTextLabel" for="bfText">Note</label><input id="bfText" type="text" maxlength="80" /></div>
+  <div class="sheet-actions add-actions"><button id="bfCancel" class="btn btn-soft block">Cancel</button><button id="bfSave" class="btn btn-primary block">Add entry</button></div>
+</div></div>
+
+<!-- ===== Entry / delete sheet ===== -->
+<div id="entryBackdrop" class="sheet-backdrop" hidden><div class="sheet">
+  <h3 id="entryTitle">Entry</h3>
+  <p class="group-desc" id="entryMeta"></p>
+  <div class="sheet-actions add-actions"><button id="entryCancel" class="btn btn-soft block">Cancel</button><button id="entryDelete" class="btn btn-danger block">Delete entry</button></div>
+</div></div>
+
+<div id="toast" class="toast" hidden></div>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
